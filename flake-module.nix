@@ -47,7 +47,11 @@ in
       autoConstruct = lib.mkEnableOption "Automatically construct hosts";
 
       path = mkOption {
-        type = types.nullOr types.path;
+        type = types.oneOf [
+          types.null
+          types.path
+          (types.enum [false])
+        ];
         default = null;
         example = literalExpression "./hosts";
         description = "Path to the directory containing the host files";

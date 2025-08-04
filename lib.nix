@@ -242,6 +242,8 @@ let
         (
           if path != null then
             [ path ]
+          else if path == false then
+            [ ]
           else
             (filter pathExists [
               # if the previous path does not exist then we will try to import some paths with some assumptions
@@ -473,7 +475,7 @@ let
   buildHosts =
     cfg:
     let
-      hostsDir = readDir cfg.path;
+      hostsDir = lib.optionalAttrs (cfg.path != false) (readDir cfg.path);
 
       hosts =
         if (cfg.onlySystem != null) then
