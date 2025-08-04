@@ -64,7 +64,36 @@ in
         description = "Only construct the hosts with for this platform";
       };
 
-      shared = mkBasicParams "Shared";
+      shared = mkOption {
+        default = {
+          modules = [];
+          specialArgs = {};
+        };
+        defaultText = ''
+          {
+            modules = [ ];
+            specialArgs = { };
+          };
+        '';
+
+        type = let
+          submod = types.submodule { options = mkBasicParams "Shared"; };
+        in
+          types.either [ submod (types.functionTo submod) ];
+        apply = x: if !builtins.isFunction then (_: x) else x;
+
+        example = literalExpression ''
+          {class, name, ...}: {
+            modules = [
+              { imports = [ self.flake.modules.''${class}.''${name} ]; }
+            ];
+
+            specialArgs = { };
+          }
+        '';
+
+        description = "Shared settings";
+      };
 
       perClass = mkOption {
         default = _: {

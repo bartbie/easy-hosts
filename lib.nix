@@ -363,10 +363,17 @@ let
       (mapAttrs (
         name: hostConfig:
         let
+          shared-args = {
+            inherit (hostConfig) class arch name tags;
+            # https://github.com/NixOS/nixpkgs/blob/114484ca7213ac06fa7907e58dd8ef9d801d39f0/lib/fileset/internal.nix#L874-L877
+            # To ensure forwards compatibility with more arguments being added in the future,
+            # adding an attribute which can't be deconstructed :)
+            "easy-hosts.lib.mkHosts: The shared function passed must be able to handle extra attributes for future compatibility. Always use `{ name, class, arch, tags, ... }:`." = null;
+          };
           # memoize the class and perClass values so we don't have to recompute them
           sources = lib.flatten [
             # modules and specialArgs from different sources combined
-            easyHostsConfig.shared
+            (easyHostsConfig.shared shared-args)
             hostConfig
             (builtins.map easyHostsConfig.perTag hostConfig.tags)
             (easyHostsConfig.perClass hostConfig.class)
